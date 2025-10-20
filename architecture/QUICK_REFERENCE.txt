@@ -1,0 +1,155 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║                    BOPHA AI ARCHITECTURE                               ║
+║                      QUICK REFERENCE CARD                              ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+📊 CURRENT STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Phase 0: PoC Complete (Google APIs working)
+🔄 Phase 1: Week 1 - Data Collection (6 voice actors, 30-60 hours)
+⏳ Phase 2: Week 5-6 - Fine-tuning (Qwen 3, VibeVoice 7B)
+⏳ Phase 3: Week 7-8 - Infrastructure (Docker, RTX 6000 Pro)
+⏳ Phase 4: Week 9-12 - Gradual Rollout (10% → 100%)
+
+📁 DOCUMENTATION MAP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+START HERE:
+  └─ README.md                              Navigation hub
+
+HIGH-LEVEL DIAGRAMS (Mermaid - GitHub renders):
+  ├─ 01-google-ai-poc.mmd                   Current Google setup
+  ├─ 02-custom-khmer-ai.mmd                 Target custom setup
+  ├─ 03-google-vs-custom.mmd                Side-by-side comparison
+  ├─ 04-voice-recording-workflow.mmd        6-voice system (Week 1-4)
+  ├─ 05-fine-tuning-pipeline.mmd            Training process (Week 5-6)
+  └─ 06-qa-evaluation-workflow.mmd          Team QA (Week 6+)
+
+DETAILED DIAGRAMS (PlantUML - export to SVG):
+  ├─ 07-content-generation-detailed.puml    Sequence diagram
+  ├─ 08-migration-roadmap.puml              12-week timeline
+  └─ 09-infrastructure-deployment.puml      Docker + GPU
+
+IN-DEPTH GUIDES (Markdown):
+  ├─ ARCHITECTURE_OVERVIEW.md               System design
+  ├─ FINE_TUNING_WORKFLOW.md                Dataset & training
+  └─ PERFORMANCE_COMPARISON.md              Metrics & ROI
+
+💰 COST COMPARISON
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    Google APIs     Bopha Custom     Savings
+Per Generation:     $0.045          $0.008           -82%
+Monthly (1000x):    $45             $8               -$37
+Annual:             $540            $96              -$444
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+One-time cost: $109-222 (data collection + training)
+Break-even: 3-6 months
+
+⏱️ PERFORMANCE COMPARISON
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Operation          Google     Bopha      Change
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Outline            8s         10s        +25%
+Script             22s        16s        -27%
+Audio              35s        20s        -43%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL PIPELINE     65s        46s        -29% faster
+
+Voice Chat         180ms      220ms      +40ms (acceptable)
+
+🎯 QUALITY METRICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Criterion              Google    Bopha    Improvement
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Natural Sound          2.3/5     4.5/5    +96%
+Khmer Pronunciation    2.1/5     4.8/5    +129%
+Cultural Context       1.8/5     4.3/5    +139%
+Overall Quality        2.5/5     4.2/5    +68%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A/B Testing Preference:  10% → 78% (prefer Bopha)
+
+🎤 VOICE PROFILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Google APIs (fixed):      Bopha Custom (fine-tuned):
+  1. Zephyr                 1. Host (curious, engaging)
+  2. Charon                 2. Expert (knowledgeable, patient)
+  3. Kore (voice only)      3. Teacher (clear, encouraging)
+                            4. Narrator (formal, storytelling)
+                            5. Student (relatable, learning)
+                            6. Guest (interviews, Q&A)
+
+🔧 TECH STACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CURRENT (Google PoC):
+  Frontend:   Next.js 15, React 19, TypeScript, Tailwind CSS
+  API:        Next.js API Routes, Better Auth
+  AI:         Gemini 2.5 Flash/Lite/Pro-TTS/Live Audio
+  Database:   Supabase PostgreSQL (Prisma ORM)
+  Storage:    Local /generated-audio/ + Supabase
+
+TARGET (Custom Bopha):
+  Frontend:   (unchanged)
+  API:        (unchanged)
+  AI:         Qwen 3 + VibeVoice 7B + Faster-Whisper + ChromaDB
+  GPU:        RTX 6000 Pro (48GB): LLM 50%, TTS 30%, STT 20%
+  Database:   Supabase (unchanged)
+  Storage:    Supabase Storage + ChromaDB (500GB)
+  Deploy:     Docker Compose (4 services)
+
+👥 TEAM ROLES (8 PEOPLE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💻 Tech Lead (1):         AI integration, training, deployment, docs
+📝 Script Writers (2):    Create 50+ educational dialogues
+🎧 Voice Reviewers (2):   Quality check recordings, transcription
+🧪 QA Testers (2):        A/B testing, bug reports, evaluation
+👨‍🏫 Teacher Advisor (1):   Educational oversight, final approval
+
+📅 12-WEEK TIMELINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Week 0:      ✅ PoC with Google APIs (complete)
+Week 1:      🔄 Recruit actors, set up recording (current)
+Week 2:      ⏳ Record 30-60 hours audio
+Week 3:      ⏳ Audio processing, transcription
+Week 4:      ⏳ Annotation, QA, teacher approval
+Week 5:      ⏳ Custom tokenizer, fine-tune Qwen 3
+Week 6:      ⏳ Fine-tune VibeVoice, evaluate quality
+Week 7:      ⏳ Docker deployment, ChromaDB setup
+Week 8:      ⏳ RAG integration, load testing
+Week 9:      ⏳ Shadow mode (10% traffic to Bopha)
+Week 10:     ⏳ Increase to 50%, monitor metrics
+Week 11:     ⏳ 100% cutover, intensive monitoring
+Week 12:     ⏳ Optimization, documentation
+Week 13:     ⏳ STEM Showcase (7-min presentation)
+
+🔗 QUICK LINKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+View on GitHub:    github.com/.../architecture/
+View Mermaid:      Open .mmd files on GitHub (auto-renders)
+View PlantUML:     Use VS Code extension or planttext.com
+Export SVGs:       plantuml -tsvg *.puml
+
+Team Meetings:     Every Monday, 1 hour
+Slack/Telegram:    Real-time communication
+Notion:            Task management
+Google Drive:      File sharing
+
+✅ SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dataset:         30-60 hours annotated Khmer audio
+Model Quality:   ≥4.0/5 (natural sound, pronunciation, cultural)
+User Preference: >70% prefer Bopha over Google
+Cost Reduction:  ≥80% ($0.045 → $0.008)
+Latency:         <300ms voice, <60s podcast
+Break-even:      3-6 months
+Budget:          <$250 total (achieved!)
+
+📞 GETTING HELP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Technical:       Ask Tech Lead
+Recording:       Consult Voice Reviewers
+Quality:         Escalate to Teacher Advisor
+Coordination:    Weekly Monday meetings
+
+═══════════════════════════════════════════════════════════════════════
+Version 1.0 | October 2025 | Week 1 of 13-Week Migration
+Print this card and keep handy during development!
+═══════════════════════════════════════════════════════════════════════

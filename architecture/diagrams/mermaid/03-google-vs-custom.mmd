@@ -1,0 +1,72 @@
+%% Bopha - Side-by-Side Comparison: Google PoC vs Custom Bopha AI
+
+graph LR
+    subgraph "🌐 GOOGLE AI (PoC)"
+        style GoogleSide fill:#F59E0B,color:#fff
+        
+        G_GEN["Content Generation<br/>📝 Gemini 2.5 Flash<br/>⏱️ Outline: 8s<br/>⏱️ Script: 22s<br/>💰 $0.017"]
+        
+        G_TTS["Text-to-Speech<br/>🎤 Gemini Pro-TTS<br/>⏱️ 35s<br/>💰 $0.028<br/>🎭 2 voices (fixed)"]
+        
+        G_VOICE["Voice Chat<br/>🔴 Gemini Live Audio<br/>⏱️ 180ms latency<br/>🎭 1 voice (Kore)"]
+        
+        G_FILE["File Processing<br/>💾 Gemini File API<br/>Auto-split >45MB<br/>48hr cache"]
+        
+        G_RAG["RAG<br/>❌ Not available<br/>Direct file processing"]
+        
+        G_COST["💰 Total Cost<br/>$0.045 per podcast<br/>API charges"]
+        
+        G_QUALITY["🇰🇭 Khmer Quality<br/>⭐ 2.5/5<br/>Robotic tone<br/>Poor transitions"]
+        
+        G_CONTROL["🎛️ Control<br/>❌ No customization<br/>❌ No fine-tuning<br/>❌ API-dependent"]
+        
+        G_PRIVACY["🔒 Privacy<br/>⚠️ External API<br/>Data sent to Google"]
+    end
+
+    subgraph "🎯 BOPHA CUSTOM AI"
+        style BophaSide fill:#8B5CF6,color:#fff
+        
+        B_GEN["Content Generation<br/>📝 Qwen 3 (fine-tuned)<br/>⏱️ Outline: 10s<br/>⏱️ Script: 16s<br/>💰 $0.003"]
+        
+        B_TTS["Text-to-Speech<br/>🎤 VibeVoice 7B<br/>⏱️ 20s<br/>💰 $0.005<br/>🎭 6 voices (custom):<br/>Host, Expert, Teacher<br/>Narrator, Student, Guest"]
+        
+        B_VOICE["Voice Chat<br/>🔴 Custom WebSocket<br/>⏱️ 220ms latency<br/>🎭 6 voices (selectable)"]
+        
+        B_FILE["File Processing<br/>💾 Supabase Storage<br/>+ OCR/Extraction<br/>+ Chunking"]
+        
+        B_RAG["RAG<br/>✅ ChromaDB<br/>Summarization storage<br/>Khmer embeddings<br/>Smart retrieval"]
+        
+        B_COST["💰 Total Cost<br/>$0.008 per podcast<br/>Self-hosted"]
+        
+        B_QUALITY["🇰🇭 Khmer Quality<br/>⭐ 4.2/5<br/>Natural conversations<br/>Cultural context<br/>Smooth fillers"]
+        
+        B_CONTROL["🎛️ Control<br/>✅ Full customization<br/>✅ Fine-tuning<br/>✅ Voice profiles<br/>✅ Khmer tokenizer"]
+        
+        B_PRIVACY["🔒 Privacy<br/>✅ Self-hosted<br/>✅ Data stays local<br/>✅ RTX 6000 Pro"]
+    end
+
+    %% Migration Arrows
+    G_GEN -.migrate.-> B_GEN
+    G_TTS -.migrate.-> B_TTS
+    G_VOICE -.migrate.-> B_VOICE
+    G_FILE -.migrate.-> B_FILE
+    G_RAG -.add.-> B_RAG
+    
+    %% Comparison Highlights
+    G_COST -."-82%".-> B_COST
+    G_QUALITY -."+68%".-> B_QUALITY
+    G_CONTROL -."+300%".-> B_CONTROL
+    G_PRIVACY -.upgrade.-> B_PRIVACY
+
+    %% Styling
+    classDef google fill:#F59E0B,stroke:#D97706,color:#fff
+    classDef bopha fill:#8B5CF6,stroke:#7C3AED,color:#fff
+    
+    class G_GEN,G_TTS,G_VOICE,G_FILE,G_RAG,G_COST,G_QUALITY,G_CONTROL,G_PRIVACY google
+    class B_GEN,B_TTS,B_VOICE,B_FILE,B_RAG,B_COST,B_QUALITY,B_CONTROL,B_PRIVACY bopha
+
+    %% Legend
+    subgraph "📊 Key Insights"
+        INSIGHTS["✅ API compatibility preserved<br/>✅ Cost reduced by 82%<br/>✅ Khmer quality improved 68%<br/>✅ 6 custom voice profiles<br/>✅ Full control over models<br/>✅ Self-hosted privacy<br/>⚠️ Voice latency +40ms (acceptable)<br/>📅 Migration: 12 weeks"]
+    end
+

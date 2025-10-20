@@ -1,0 +1,219 @@
+@startuml Bopha Migration Roadmap - 12-Week Timeline
+
+!define COMPLETE_COLOR #10B981
+!define CURRENT_COLOR #F59E0B
+!define FUTURE_COLOR #8B5CF6
+
+title Bopha: Migration from Google APIs to Custom Khmer AI (12-Week Plan)
+
+|#COMPLETE_COLOR|Phase 0: PoC Complete|
+start
+:✅ **Week 0: Proof of Concept**
+====
+* Implemented features with Google APIs:
+  * Content generation (Outline → Script → Audio)
+  * Voice-to-voice chat (Gemini Live)
+  * Mindmap, Flashcards, Quiz
+  * Library system with Supabase
+* Demo presented to teacher
+* **Budget allocated: $150-250**;
+note right: Status: COMPLETE
+
+|#CURRENT_COLOR|Phase 1: Data Collection|
+
+:📅 **Week 1: Recording Setup** (CURRENT WEEK)
+====
+* Recruit 6 voice actors:
+  * Host, Expert, Teacher
+  * Narrator, Student, Guest
+* Set up recording environment:
+  * Microphone, audio interface
+  * Quiet room, quality check
+* Create 50+ educational scripts
+  * Script Writers 1 & 2 (parallel work)
+  * Khmer language focus
+  * Cultural context integration;
+note right: Team: 8 people\nStatus: IN PROGRESS
+
+:📅 **Week 2: Voice Recording**
+====
+* Record 5-10 hours per actor
+* **Total: 30-60 hours** of Khmer audio
+* Multiple sessions per actor
+* Real-time quality checks
+* Re-record problematic segments;
+
+:📅 **Week 3: Audio Processing**
+====
+* Audio cleaning:
+  * Normalize volume (-16 LUFS)
+  * Remove silence >1s
+  * Split into <30s segments
+* Manual transcription:
+  * Khmer text + Romanized
+  * Timestamp alignment
+  * Speaker diarization
+* **Team of 8** reviews quality;
+
+:📅 **Week 4: Annotation & QA**
+====
+* Annotate dialogue features:
+  * Emotion tags (curious, excited)
+  * Fillers (អឺ, អញ្ចឹង, គឺ)
+  * Cultural context notes
+* Voice Reviewers 1 & 2: Quality check
+* Teacher Advisor: Final approval
+* **Dataset ready for training**;
+note right: Output:\n30-60 hrs annotated\n80/10/10 train/val/test
+
+|#FUTURE_COLOR|Phase 2: Model Fine-Tuning|
+
+:📅 **Week 5: Fine-Tuning Part 1**
+====
+* Build custom Khmer tokenizer (+2000 tokens)
+* Fine-tune **Qwen 3 7B** with LoRA:
+  * Batch size: 4-8
+  * Epochs: 3-5, LR: 2e-5
+  * Training time: 12-24 hours
+  * **Cost: $3-24** (RTX 6000 Pro)
+* Start **VibeVoice 7B** fine-tuning:
+  * 6 voice profiles in parallel
+  * Custom Khmer tokenizer;
+
+:📅 **Week 6: Evaluation & Iteration**
+====
+* Human evaluation by team of 8:
+  * Natural sound (1-5)
+  * Educational value (1-5)
+  * Cultural context (1-5)
+  * Technical quality (1-5)
+* **A/B testing**: Google vs Bopha
+* Target: Quality ≥4/5, Preference >70%;
+
+if (Quality meets target?) then (yes)
+  :✅ Approve models for deployment;
+else (no)
+  :🔧 Adjust hyperparameters\nCollect more data if needed;
+  backward :Re-train models;
+endif
+
+|#FUTURE_COLOR|Phase 3: Infrastructure Setup|
+
+:📅 **Week 7: Docker Deployment**
+====
+* Set up RTX 6000 Pro server:
+  * Ubuntu 22.04 LTS
+  * Docker + Docker Compose
+  * GPU drivers, CUDA toolkit
+* Deploy services:
+  * llm-inference (Qwen 3)
+  * tts-service (VibeVoice 7B)
+  * stt-service (Faster-Whisper)
+  * chromadb (RAG vector DB);
+
+:📅 **Week 8: RAG Integration**
+====
+* Implement ChromaDB pipeline:
+  * Document chunking
+  * Khmer embeddings
+  * Summarization strategy
+* Test end-to-end:
+  * File upload → Embedding → Retrieval
+* Load testing:
+  * 100 concurrent requests
+  * Latency benchmarks;
+
+|#FUTURE_COLOR|Phase 4: Gradual Rollout|
+
+:📅 **Week 9: Shadow Mode (10%)**
+====
+* Deploy custom AI alongside Google
+* Route **10% traffic** to Bopha AI
+* Compare results:
+  * Quality metrics
+  * Latency
+  * Error rates
+* Monitor closely for issues;
+
+:📅 **Week 10: Increase to 50%**
+====
+* If quality stable, increase to **50%**
+* Continue monitoring:
+  * User satisfaction
+  * System performance
+  * GPU utilization
+* Prepare rollback plan;
+
+if (Metrics acceptable?) then (yes)
+  :Continue to full rollout;
+else (no)
+  :⚠️ ROLLBACK to Google APIs\nDebug issues;
+  backward :Fix and re-deploy;
+endif
+
+|#FUTURE_COLOR|Phase 5: Full Cutover|
+
+:📅 **Week 11: 100% Custom AI**
+====
+* Route **all traffic** to Bopha AI
+* Keep Google APIs as backup
+* Monitor intensively:
+  * Daily performance reviews
+  * User feedback collection
+  * Bug triage;
+
+:📅 **Week 12: Optimization & Docs**
+====
+* Performance tuning:
+  * Model quantization (INT8)
+  * Inference optimization
+  * Caching strategies
+* Document everything:
+  * Architecture diagrams ✅
+  * Deployment guides
+  * Troubleshooting playbooks
+* Cost analysis:
+  * Compare actual vs projected
+  * ROI calculation;
+
+|#FUTURE_COLOR|Phase 6: Showcase|
+
+:📅 **Week 13: STEM Showcase**
+====
+* **7-minute presentation**:
+  * Problem: Khmer AI limitations
+  * Demo: Bopha podcast generation
+  * Workflow: 6-voice system
+  * Budget: <$250 total
+  * Vision: 24/7 AI tutor for Khmer students
+* Celebrate with team of 8!;
+
+stop
+
+legend right
+  **Rollback Points**
+  ====
+  * Week 6: If quality <4/5 → collect more data
+  * Week 9: If errors >5% → stay on Google
+  * Week 10: If latency >500ms → optimize
+  * Week 11: Critical issues → rollback to Google
+  
+  **Success Metrics**
+  ====
+  ✅ Khmer quality: ≥4/5
+  ✅ User preference: >70% for Bopha
+  ✅ Cost reduction: 80%+
+  ✅ Latency: <300ms voice, <60s podcast
+  ✅ Budget: <$250 total
+  
+  **Team of 8**
+  ====
+  👨‍💻 Tech Lead: You
+  📝 Script Writers: 2
+  🎧 Voice Reviewers: 2
+  🧪 QA Testers: 2
+  👨‍🏫 Teacher Advisor: 1
+endlegend
+
+@enduml
+

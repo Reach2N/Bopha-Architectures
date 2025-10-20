@@ -1,0 +1,142 @@
+%% Bopha - Custom Khmer AI Architecture (Target System)
+%% Post dataset collection & fine-tuning
+
+graph TB
+    subgraph "Frontend Layer (Unchanged)"
+        style FrontendLayer fill:#3B82F6,color:#fff
+        Web["Next.js 15 App<br/>React 19<br/>TypeScript<br/>✅ Same API Interface"]
+        T2V["T2V Studio"]
+        V2V["V2V Voice Chat"]
+        Library["Library Browser"]
+        Web --> T2V
+        Web --> V2V
+        Web --> Library
+    end
+
+    subgraph "Middleware (Unchanged)"
+        style Middleware fill:#10B981,color:#fff
+        MW["middleware.ts<br/>Better Auth"]
+    end
+
+    subgraph "API Routes Layer (Compatible)"
+        style APILayer fill:#10B981,color:#fff
+        GenAPI["/api/generate<br/>⚡ Custom Pipeline"]
+        UploadAPI["/api/upload<br/>💾 Custom Handler"]
+        AudioAPI["/api/audio/*<br/>🎤 Audio Mgmt"]
+        LibAPI["/api/library/*"]
+        AuthAPI["/api/auth/*"]
+    end
+
+    subgraph "Custom Service Layer"
+        style ServiceLayer fill:#8B5CF6,color:#fff
+        GPS2["GenPodcastService<br/>⚙️ Custom Pipeline"]
+        FUS2["FileUploadService<br/>📤 + OCR/Extraction"]
+        RAG["RAG Service<br/>🔍 ChromaDB Query"]
+        EMB["Embedding Service<br/>🧮 Khmer Embeddings"]
+    end
+
+    subgraph "Custom AI Stack (Self-Hosted)"
+        style CustomAI fill:#8B5CF6,color:#fff
+        
+        subgraph "LLM Inference"
+            QWEN["Qwen 3 7B (fine-tuned)<br/>🧠 Outline + Script<br/>Custom Khmer Tokenizer<br/>⏱️ 10s + 16s<br/>💰 $0.003/req"]
+            QWENALT["Alternative:<br/>Llama 3.2/3.3<br/>Qwen 3 Multimodal"]
+        end
+        
+        subgraph "TTS System"
+            VIBE["VibeVoice 7B<br/>(Microsoft fine-tuned)<br/>🎤 6 Voices:<br/>Host, Expert, Teacher<br/>Narrator, Student, Guest<br/>Custom Khmer Tokenizer<br/>⏱️ 15-25s<br/>💰 $0.005/req"]
+        end
+        
+        subgraph "STT System"
+            WHISPER["Faster-Whisper<br/>OR Custom ASR<br/>🎙️ Khmer Optimized<br/>⏱️ 60ms latency"]
+        end
+        
+        subgraph "RAG System"
+            CHROMA["ChromaDB<br/>🔍 Vector Search<br/>Summarization Storage<br/>500GB SSD"]
+            EMBMODEL["Embedding Model<br/>Khmer-capable<br/>768-dim vectors"]
+        end
+    end
+
+    subgraph "Infrastructure"
+        style Infra fill:#6B7280,color:#fff
+        GPU["RTX 6000 Pro (48GB)<br/>🎮 Shared GPU<br/>LLM: 50%<br/>TTS: 30%<br/>STT: 20%"]
+        DOCKER["Docker Compose<br/>4 Services:<br/>llm, tts, stt, chromadb"]
+        MON["Monitoring<br/>Prometheus + Grafana"]
+        GPU --> DOCKER
+        DOCKER --> MON
+    end
+
+    subgraph "Database (Supabase - Unchanged)"
+        style Database fill:#6366F1,color:#fff
+        PG2["PostgreSQL<br/>via Prisma ORM"]
+        USER2["👤 User"]
+        LIB2["📚 Library"]
+        SESS2["🔑 Session"]
+        STORAGE["Supabase Storage<br/>💾 Audio Files<br/>📁 Datasets"]
+        PG2 --> USER2
+        PG2 --> LIB2
+        PG2 --> SESS2
+    end
+
+    %% User Flow
+    Web --> MW
+    MW --> GenAPI
+    MW --> UploadAPI
+    MW --> AudioAPI
+    MW --> LibAPI
+    MW --> AuthAPI
+
+    %% Generation Pipeline (Custom)
+    GenAPI --> GPS2
+    GPS2 --> RAG
+    RAG --> CHROMA
+    RAG --> EMBMODEL
+    GPS2 --> QWEN
+    QWEN --> VIBE
+    VIBE --> AudioAPI
+    AudioAPI --> STORAGE
+    GenAPI --> PG2
+
+    %% File Upload (Custom)
+    UploadAPI --> FUS2
+    FUS2 --> EMB
+    EMB --> EMBMODEL
+    EMBMODEL --> CHROMA
+    FUS2 --> STORAGE
+    FUS2 --> PG2
+
+    %% Voice Chat (Custom)
+    V2V -.WebSocket.-> WHISPER
+    WHISPER --> QWEN
+    QWEN --> VIBE
+
+    %% Library
+    LibAPI --> PG2
+
+    %% Auth
+    AuthAPI --> PG2
+
+    %% Infrastructure
+    QWEN -.- GPU
+    VIBE -.- GPU
+    WHISPER -.- GPU
+    CHROMA -.- DOCKER
+
+    %% Annotations
+    classDef frontend fill:#3B82F6,stroke:#2563EB,color:#fff
+    classDef api fill:#10B981,stroke:#059669,color:#fff
+    classDef custom fill:#8B5CF6,stroke:#7C3AED,color:#fff
+    classDef db fill:#6366F1,stroke:#4F46E5,color:#fff
+    classDef infra fill:#6B7280,stroke:#4B5563,color:#fff
+
+    class Web,T2V,V2V,Library frontend
+    class GenAPI,UploadAPI,AudioAPI,LibAPI,AuthAPI api
+    class GPS2,FUS2,RAG,EMB,QWEN,QWENALT,VIBE,WHISPER,CHROMA,EMBMODEL custom
+    class PG2,USER2,LIB2,SESS2,STORAGE db
+    class GPU,DOCKER,MON infra
+
+    %% Legend
+    subgraph "📊 Target Metrics"
+        METRICS["💰 Cost: ~$0.008/generation (-82%)<br/>⏱️ Total Time: 35-57s (similar)<br/>🎯 Quality: 4.2/5 (vs 2.5/5 Google)<br/>🔒 Privacy: Self-hosted<br/>🎤 Voices: 6 custom (vs 2 Google)<br/>🇰🇭 Khmer: Excellent (fine-tuned)"]
+    end
+

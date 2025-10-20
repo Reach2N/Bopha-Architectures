@@ -1,0 +1,121 @@
+%% Bopha - Current Google AI Architecture (PoC - Week 1)
+%% Shows the working proof-of-concept using Google APIs
+
+graph TB
+    subgraph "Frontend Layer"
+        style FrontendLayer fill:#3B82F6,color:#fff
+        Web["Next.js 15 App<br/>React 19<br/>TypeScript"]
+        T2V["T2V Studio<br/>(3-panel layout)"]
+        V2V["V2V Voice Chat<br/>(real-time)"]
+        Library["Library Browser<br/>(workspaces)"]
+        Web --> T2V
+        Web --> V2V
+        Web --> Library
+    end
+
+    subgraph "Middleware"
+        style Middleware fill:#10B981,color:#fff
+        MW["middleware.ts<br/>Route Protection<br/>Session Validation"]
+    end
+
+    subgraph "API Routes Layer"
+        style APILayer fill:#10B981,color:#fff
+        GenAPI["/api/generate<br/>⚡ Content Pipeline"]
+        UploadAPI["/api/upload<br/>💾 File Handler"]
+        AudioAPI["/api/audio/*<br/>🎤 Audio Save/Get"]
+        LibAPI["/api/library/*<br/>📚 CRUD + Sync"]
+        AuthAPI["/api/auth/*<br/>🔐 Better Auth"]
+    end
+
+    subgraph "Service Layer"
+        style ServiceLayer fill:#10B981,color:#fff
+        GPS["GenPodcastService<br/>⚙️ Pipeline Orchestration"]
+        FUS["FileUploadService<br/>📤 File Processing"]
+        CS["conversationService<br/>🎙️ TTS Generation"]
+        GLS["geminiLiveServer<br/>🔴 Real-time Voice"]
+        CPH["contentPartsHelper<br/>📋 Document Prep"]
+    end
+
+    subgraph "Google Gemini AI (External)"
+        style GeminiLayer fill:#F59E0B,color:#fff
+        G25FL["Gemini 2.5 Flash Lite<br/>🧠 Outline (5-10s)<br/>$0.002/req"]
+        G25F["Gemini 2.5 Flash<br/>🧠 Script (15-30s)<br/>$0.015/req"]
+        G25TTS["Gemini 2.5 Pro-TTS<br/>🎤 Audio (20-40s)<br/>$0.028/req<br/>Voices: Zephyr + Charon"]
+        GFILE["Gemini File API<br/>💾 Auto-split >45MB<br/>48hr cache"]
+        GLIVE["Gemini Live Audio<br/>🔴 Voice Chat (WebSocket)<br/>180ms latency<br/>Voice: Kore"]
+        GTOOLS["Tools:<br/>🔍 urlContext<br/>🌐 googleSearch"]
+    end
+
+    subgraph "Database (Supabase)"
+        style Database fill:#6366F1,color:#fff
+        PG["PostgreSQL<br/>via Prisma ORM"]
+        USER["👤 User<br/>(email, role)"]
+        LIB["📚 Library<br/>(name, data JSON)"]
+        SESS["🔑 Session<br/>(token, expiresAt)"]
+        PG --> USER
+        PG --> LIB
+        PG --> SESS
+    end
+
+    subgraph "Local Storage"
+        style Storage fill:#6B7280,color:#fff
+        LOCAL["/generated-audio/<br/>💾 WAV files"]
+    end
+
+    %% User Flow
+    Web --> MW
+    MW --> GenAPI
+    MW --> UploadAPI
+    MW --> AudioAPI
+    MW --> LibAPI
+    MW --> AuthAPI
+
+    %% Generation Pipeline
+    GenAPI --> GPS
+    GPS --> CPH
+    CPH --> GFILE
+    CPH --> G25FL
+    G25FL --> G25F
+    G25F --> CS
+    CS --> G25TTS
+    G25TTS --> AudioAPI
+    AudioAPI --> LOCAL
+    GenAPI --> PG
+
+    %% File Upload
+    UploadAPI --> FUS
+    FUS --> GFILE
+    GFILE --> PG
+
+    %% Voice Chat
+    V2V --> GLS
+    GLS -.WebSocket.-> GLIVE
+
+    %% Library
+    LibAPI --> PG
+
+    %% Auth
+    AuthAPI --> PG
+
+    %% Tools
+    G25FL -.uses.-> GTOOLS
+    G25F -.uses.-> GTOOLS
+
+    %% Annotations
+    classDef frontend fill:#3B82F6,stroke:#2563EB,color:#fff
+    classDef api fill:#10B981,stroke:#059669,color:#fff
+    classDef google fill:#F59E0B,stroke:#D97706,color:#fff
+    classDef db fill:#6366F1,stroke:#4F46E5,color:#fff
+    classDef storage fill:#6B7280,stroke:#4B5563,color:#fff
+
+    class Web,T2V,V2V,Library frontend
+    class GenAPI,UploadAPI,AudioAPI,LibAPI,AuthAPI,GPS,FUS,CS,GLS,CPH api
+    class G25FL,G25F,G25TTS,GFILE,GLIVE,GTOOLS google
+    class PG,USER,LIB,SESS db
+    class LOCAL storage
+
+    %% Legend
+    subgraph "📊 Current Status"
+        STATUS["✅ PoC Complete<br/>✅ Teacher Approved<br/>📅 Week 1: Data Collection Phase<br/>💰 Cost: ~$0.045/generation<br/>⏱️ Total Time: 45-80s"]
+    end
+

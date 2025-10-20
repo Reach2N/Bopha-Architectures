@@ -1,0 +1,97 @@
+%% Bopha - 6-Voice Recording System Workflow
+%% Team of 8 people creating dataset for fine-tuning
+
+graph TB
+    subgraph "Voice Actors (6 People)"
+        style Actors fill:#EC4899,color:#fff
+        V1["👤 Host<br/>Podcast style<br/>Curious, engaging<br/>5-10 hours"]
+        V2["👨‍🏫 Expert<br/>Knowledgeable<br/>Patient, Cambodian context<br/>5-10 hours"]
+        V3["👩‍🏫 Teacher<br/>Clear, educational<br/>Encouraging<br/>5-10 hours"]
+        V4["📖 Narrator<br/>Formal, storytelling<br/>Documentary style<br/>5-10 hours"]
+        V5["🎓 Student<br/>Questions, learning<br/>Relatable, curious<br/>5-10 hours"]
+        V6["🎤 Guest<br/>Optional, variety<br/>Interviews, Q&A<br/>5-10 hours"]
+    end
+
+    subgraph "Week 1: Script Creation"
+        style Week1 fill:#3B82F6,color:#fff
+        SW1["Script Writer 1<br/>📝 25 dialogues"]
+        SW2["Script Writer 2<br/>📝 25 dialogues"]
+        SCRIPTS["50+ Educational Scripts<br/>✅ Khmer language<br/>✅ Cultural context<br/>✅ Natural dialogues"]
+        SW1 --> SCRIPTS
+        SW2 --> SCRIPTS
+    end
+
+    subgraph "Week 2: Recording Sessions"
+        style Week2 fill:#10B981,color:#fff
+        SETUP["Recording Setup<br/>🎙️ Microphone<br/>🔇 Quiet room<br/>📱 Audio interface"]
+        REC1["Session 1<br/>⏱️ 2-3 hours"]
+        REC2["Session 2<br/>⏱️ 2-3 hours"]
+        REC3["Session 3<br/>⏱️ 2-3 hours"]
+        REC4["Session 4<br/>⏱️ 2-3 hours"]
+        SETUP --> REC1
+        REC1 --> REC2
+        REC2 --> REC3
+        REC3 --> REC4
+        RAWFILES["Raw Audio Files<br/>30-60 hours total<br/>WAV 48kHz mono"]
+        REC4 --> RAWFILES
+    end
+
+    subgraph "Week 3: Audio Processing"
+        style Week3 fill:#8B5CF6,color:#fff
+        CLEAN["Audio Cleaning<br/>🔊 Normalize (-16 LUFS)<br/>🔇 Remove silence >1s<br/>✂️ Split into <30s segments"]
+        TRANS["Transcription<br/>📝 Manual review by team<br/>⌨️ Khmer text + Romanized<br/>⏱️ Timestamp alignment<br/>👥 Speaker diarization"]
+        RAWFILES --> CLEAN
+        CLEAN --> TRANS
+    end
+
+    subgraph "Week 4: Annotation & QA"
+        style Week4 fill:#F59E0B,color:#fff
+        ANNOT["Annotation<br/>💬 Dialogue turns (Host ↔ Expert)<br/>😊 Emotion tags (curious, excited)<br/>🗣️ Fillers (អឺ, អញ្ចឹង, គឺ)<br/>🇰🇭 Cultural context notes"]
+        QA1["Voice Reviewer 1<br/>✅ Quality check"]
+        QA2["Voice Reviewer 2<br/>✅ Quality check"]
+        TEACHER["Teacher Advisor<br/>✅ Final approval"]
+        TRANS --> ANNOT
+        ANNOT --> QA1
+        ANNOT --> QA2
+        QA1 --> TEACHER
+        QA2 --> TEACHER
+    end
+
+    subgraph "Dataset Storage"
+        style Storage fill:#6366F1,color:#fff
+        DATASET["Final Dataset<br/>📊 Training: 80% (24-48 hrs)<br/>📊 Validation: 10% (3-6 hrs)<br/>📊 Test: 10% (3-6 hrs)<br/>📁 Format: audio + transcript JSON"]
+        SUPABASE["Supabase Storage<br/>💾 Audio files<br/>📁 Organized by voice/session"]
+        POSTGRES["PostgreSQL<br/>📊 Metadata<br/>📝 Transcripts<br/>🏷️ Annotations"]
+        TEACHER --> DATASET
+        DATASET --> SUPABASE
+        DATASET --> POSTGRES
+    end
+
+    %% Voice actor flow
+    SCRIPTS --> V1
+    SCRIPTS --> V2
+    SCRIPTS --> V3
+    SCRIPTS --> V4
+    SCRIPTS --> V5
+    SCRIPTS --> V6
+    
+    V1 --> REC1
+    V2 --> REC1
+    V3 --> REC2
+    V4 --> REC2
+    V5 --> REC3
+    V6 --> REC3
+
+    %% Styling
+    classDef actors fill:#EC4899,stroke:#DB2777,color:#fff
+    classDef week fill:#3B82F6,stroke:#2563EB,color:#fff
+    classDef storage fill:#6366F1,stroke:#4F46E5,color:#fff
+    
+    class V1,V2,V3,V4,V5,V6 actors
+    class DATASET,SUPABASE,POSTGRES storage
+
+    %% Legend
+    subgraph "📊 Recording Metrics"
+        METRICS["👥 Voice Actors: 6<br/>📝 Script Writers: 2<br/>🎧 Voice Reviewers: 2<br/>👨‍🏫 Teacher: 1<br/>💻 Tech Lead: 1<br/>⏱️ Total Duration: 30-60 hours<br/>📅 Timeline: 4 weeks<br/>💰 Budget: $100-150"]
+    end
+

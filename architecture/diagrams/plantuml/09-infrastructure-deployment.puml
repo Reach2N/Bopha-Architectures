@@ -1,0 +1,247 @@
+@startuml Bopha Infrastructure - Custom AI Deployment
+
+!define CUSTOM_COLOR #8B5CF6
+!define INFRA_COLOR #6B7280
+!define DB_COLOR #6366F1
+
+title Bopha Custom AI Infrastructure (RTX 6000 Pro + Docker Compose)
+
+cloud "Client Applications" {
+    [Next.js Web App]
+    [Mobile Browser]
+}
+
+node "RTX 6000 Pro Server" <<Ubuntu 22.04 LTS>> {
+    
+    rectangle "Docker Compose Environment" as DOCKER #6B7280 {
+        
+        ' LLM Service
+        component "llm-inference" as LLM #8B5CF6 {
+            [vLLM Runtime]
+            [Qwen 3 7B\nFine-tuned]
+            [Custom Khmer\nTokenizer]
+            note bottom of [Qwen 3 7B\nFine-tuned]
+                **GPU Allocation: 50%** (~24GB)
+                Model size: ~7GB (INT8 quantized)
+                Batch size: 4-8
+                Max tokens: 2048
+                Temperature: 0.7
+                Endpoints:
+                  POST /v1/completions
+                  POST /v1/chat/completions
+            end note
+        }
+        
+        ' TTS Service
+        component "tts-service" as TTS #8B5CF6 {
+            [VibeVoice 7B\nRuntime]
+            [6 Voice Profiles\nFine-tuned]
+            [Khmer Tokenizer]
+            note bottom of [6 Voice Profiles\nFine-tuned]
+                **GPU Allocation: 30%** (~14GB)
+                Voices: Host, Expert, Teacher
+                        Narrator, Student, Guest
+                Sample rate: 48kHz
+                Format: WAV
+                Streaming: Yes
+                Endpoints:
+                  POST /synthesize
+                  POST /stream
+            end note
+        }
+        
+        ' STT Service
+        component "stt-service" as STT #8B5CF6 {
+            [Faster-Whisper]
+            [Large-v3 Model]
+            [Khmer Language]
+            note bottom of [Faster-Whisper]
+                **GPU Allocation: 20%** (~10GB)
+                Model: Large-v3 (~3GB)
+                Language: km (Khmer)
+                Beam size: 5
+                Latency: ~60ms
+                Endpoints:
+                  POST /transcribe
+                  WS /stream
+            end note
+        }
+        
+        ' ChromaDB
+        database "chromadb" as CHROMA #8B5CF6 {
+            [Vector Storage]
+            [Embeddings\n(768-dim)]
+            [Summaries]
+            note bottom of [Vector Storage]
+                **Storage: 500GB SSD**
+                Embedding model: BGE-M3 (Khmer)
+                Collections:
+                  - document_chunks
+                  - user_libraries
+                Index: HNSW (fast similarity)
+                Endpoints:
+                  POST /api/v1/collections
+                  POST /api/v1/query
+            end note
+        }
+        
+        ' Redis (Optional)
+        database "redis" as REDIS #6B7280 {
+            [Cache Layer]
+            [Session Store]
+            note bottom of [Cache Layer]
+                **Optional** (TBD)
+                RAM: 8-16GB
+                TTL: 1 hour (generation cache)
+                     7 days (embeddings cache)
+            end note
+        }
+        
+        ' Nginx Reverse Proxy
+        component "nginx" as NGINX #6B7280 {
+            [Load Balancer]
+            [TLS Termination]
+            [Rate Limiting]
+            note bottom of [Load Balancer]
+                Rate limit: 100 req/min per user
+                Timeout: 60s
+                Max body size: 100MB
+                WebSocket: Enabled
+            end note
+        }
+        
+        ' Monitoring
+        component "monitoring" as MONITOR #6B7280 {
+            [Prometheus]
+            [Grafana]
+            [Alert Manager]
+            note bottom of [Prometheus]
+                Metrics collected:
+                  - GPU utilization %
+                  - Request latency
+                  - Throughput (req/s)
+                  - Error rates
+                  - Model inference time
+            end note
+        }
+    }
+    
+    ' GPU
+    card "RTX 6000 Pro GPU" as GPU #F59E0B {
+        [48GB GDDR6 Memory]
+        [CUDA 12.x]
+        [Compute: 8.9]
+        note bottom of [48GB GDDR6 Memory]
+            Allocation:
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+            ████████████░░░░░░ 50% LLM (24GB)
+            ███████░░░░░░░░░░░ 30% TTS (14GB)
+            ████░░░░░░░░░░░░░░ 20% STT (10GB)
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+            Total: ~48GB utilized
+        end note
+    }
+    
+    ' Storage
+    database "Local Storage" as STORAGE #6B7280 {
+        [2TB NVMe SSD]
+        note bottom of [2TB NVMe SSD]
+            Usage:
+            - Models: 50GB
+            - ChromaDB: 500GB
+            - Logs: 100GB
+            - Temp files: 200GB
+            - Available: 1150GB
+        end note
+    }
+}
+
+' External Services
+cloud "Supabase Cloud" as SUPABASE #6366F1 {
+    database "PostgreSQL" {
+        [User & Auth]
+        [Libraries]
+        [Metadata]
+    }
+    storage "Storage Buckets" {
+        [Audio Files]
+        [Datasets]
+        [User Uploads]
+    }
+}
+
+' Connections - Client to Nginx
+[Next.js Web App] -down-> NGINX : HTTPS\n443
+[Mobile Browser] -down-> NGINX : HTTPS\n443
+
+' Nginx to Services
+NGINX -down-> LLM : HTTP\n:8001
+NGINX -down-> TTS : HTTP\n:8002
+NGINX -down-> STT : HTTP/WS\n:8003
+NGINX -down-> CHROMA : HTTP\n:8004
+
+' Services to GPU
+LLM -down-> GPU : CUDA
+TTS -down-> GPU : CUDA
+STT -down-> GPU : CUDA
+
+' Services to Storage
+CHROMA -down-> STORAGE : Persist
+LLM -down-> STORAGE : Checkpoints
+TTS -down-> STORAGE : Temp Audio
+
+' Services to Redis (Optional)
+LLM ..> REDIS : Cache
+TTS ..> REDIS : Cache
+CHROMA ..> REDIS : Cache
+
+' Services to Supabase
+LLM -right-> SUPABASE : Metadata
+TTS -right-> SUPABASE : Audio Storage
+NGINX -right-> SUPABASE : Auth Check
+
+' Monitoring
+MONITOR --> LLM : Scrape :9090
+MONITOR --> TTS : Scrape :9090
+MONITOR --> STT : Scrape :9090
+MONITOR --> CHROMA : Scrape :9090
+MONITOR --> NGINX : Scrape :9090
+
+' Scaling Notes
+note bottom of DOCKER
+  **Scaling Strategy**
+  ━━━━━━━━━━━━━━━━━━━━━━━
+  Current: 1x RTX 6000 Pro
+  If load increases:
+    1. Add 2nd RTX 6000 Pro
+    2. Run 2 replicas per service
+    3. Nginx load balancing
+  
+  Migration to K8s (future):
+    - Helm charts ready
+    - Auto-scaling policies
+    - Multi-node support
+end note
+
+' Deployment Notes
+note right of GPU
+  **Deployment Commands**
+  ━━━━━━━━━━━━━━━━━━━━━━━
+  cd infrastructure/
+  docker-compose up -d
+  
+  docker ps
+  # llm-inference:v1.0
+  # tts-service:v1.0
+  # stt-service:v1.0
+  # chromadb:latest
+  # redis:7-alpine
+  # nginx:alpine
+  # prometheus:latest
+  # grafana:latest
+  
+  docker-compose logs -f
+end note
+
+@enduml
+

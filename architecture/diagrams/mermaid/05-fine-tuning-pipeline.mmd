@@ -1,0 +1,59 @@
+%% Bopha - Model Fine-Tuning Pipeline (Weeks 5-6)
+%% Training custom Khmer AI models on RTX 6000 Pro
+
+sequenceDiagram
+    participant DS as Dataset<br/>(30-60 hrs)
+    participant PREP as Preprocessing<br/>Pipeline
+    participant TOKEN as Custom<br/>Khmer Tokenizer
+    participant QWEN as Qwen 3 7B<br/>(Base Model)
+    participant VIBE as VibeVoice 7B<br/>(Base Model)
+    participant TRAIN as Training<br/>(RTX 6000 Pro)
+    participant EVAL as Evaluation<br/>(Team of 8)
+    participant DEPLOY as Deployment<br/>(Docker)
+
+    Note over DS: ✅ Dataset ready from Week 4
+    
+    DS->>PREP: Load audio + transcripts
+    PREP->>PREP: Data validation<br/>Check format, quality
+    
+    PREP->>TOKEN: Build Khmer vocabulary<br/>(+2000 new tokens)
+    Note over TOKEN: Cambodian educational corpus<br/>Technical terms, fillers
+
+    par LLM Fine-Tuning (Week 5)
+        PREP->>QWEN: Load base model<br/>(HuggingFace)
+        QWEN->>TOKEN: Integrate custom tokenizer
+        QWEN->>TRAIN: Fine-tune with LoRA/QLoRA<br/>⚙️ Batch size: 4-8<br/>⚙️ Epochs: 3-5<br/>⚙️ LR: 2e-5<br/>⏱️ 12-24 hours<br/>💰 $3-24
+        TRAIN->>TRAIN: Checkpoint every epoch
+        TRAIN->>EVAL: Intermediate model v0.1
+        EVAL->>EVAL: Test perplexity, BLEU
+    and TTS Fine-Tuning (Week 5)
+        PREP->>VIBE: Load base model<br/>(Microsoft)
+        VIBE->>TOKEN: Integrate custom tokenizer
+        VIBE->>TRAIN: Fine-tune 6 voice profiles<br/>⚙️ Host, Expert, Teacher<br/>⚙️ Narrator, Student, Guest<br/>⏱️ 24-48 hours<br/>💰 $6-48
+        TRAIN->>TRAIN: Checkpoint per voice
+        TRAIN->>EVAL: Test voices v0.1
+        EVAL->>EVAL: A/B test vs Google TTS
+    end
+
+    Note over EVAL: Week 6: Human Evaluation
+
+    EVAL->>EVAL: QA Team (2) rates quality<br/>1. Natural sound (1-5)<br/>2. Educational value (1-5)<br/>3. Cultural context (1-5)<br/>4. Technical quality (1-5)
+    
+    EVAL->>EVAL: Teacher Advisor<br/>Final approval
+    
+    alt Quality < 4/5
+        EVAL->>TRAIN: Request more training<br/>Adjust hyperparameters
+        TRAIN->>EVAL: Model v0.2
+    else Quality >= 4/5
+        EVAL->>DEPLOY: ✅ Approve for deployment
+    end
+
+    DEPLOY->>DEPLOY: Model quantization<br/>(INT8 for faster inference)
+    DEPLOY->>DEPLOY: Docker containerization<br/>🐳 llm-inference:v1.0<br/>🐳 tts-service:v1.0
+    
+    Note over DEPLOY: Ready for Week 7: Infrastructure Setup
+
+    rect rgb(139, 92, 246, 0.3)
+        Note over DS,DEPLOY: Training Metrics<br/>🎮 GPU: RTX 6000 Pro (48GB)<br/>⏱️ Total Time: 36-72 hours<br/>💰 Total Cost: $9-72<br/>📊 Target Quality: ≥4/5<br/>🎯 Khmer Fluency: Excellent
+    end
+

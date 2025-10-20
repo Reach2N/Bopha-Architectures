@@ -1,0 +1,114 @@
+%% Bopha - QA Evaluation & Team Collaboration Workflow
+%% 8-person team testing and improving Bopha AI quality
+
+flowchart TD
+    subgraph "Team of 8"
+        TL["💻 Tech Lead (You)<br/>AI integration, deployment"]
+        SW1["📝 Script Writer 1"]
+        SW2["📝 Script Writer 2"]
+        VR1["🎧 Voice Reviewer 1"]
+        VR2["🎧 Voice Reviewer 2"]
+        QA1["🧪 QA Tester 1"]
+        QA2["🧪 QA Tester 2"]
+        TA["👨‍🏫 Teacher Advisor"]
+    end
+
+    subgraph "Testing Environment"
+        TESTGEN["Test Generation<br/>🧪 50 sample requests<br/>📚 Various document types<br/>🎤 Voice chat sessions"]
+        
+        subgraph "A/B Testing"
+            GOOGLE["Google APIs<br/>Gemini TTS<br/>(Control Group)"]
+            BOPHA["Bopha Custom AI<br/>VibeVoice + Qwen 3<br/>(Test Group)"]
+        end
+    end
+
+    subgraph "Evaluation Criteria"
+        FORM["Google Forms/Notion<br/>Evaluation Form"]
+        
+        C1["1. Natural Sound (1-5)<br/>Real Khmer conversation?"]
+        C2["2. Educational Value (1-5)<br/>Clear and helpful?"]
+        C3["3. Cultural Context (1-5)<br/>Cambodian examples?"]
+        C4["4. Technical Quality (1-5)<br/>Audio clarity, no glitches?"]
+        C5["5. Preference<br/>Google vs Bopha?"]
+        C6["6. Comments<br/>What needs improvement?"]
+        
+        FORM --> C1
+        FORM --> C2
+        FORM --> C3
+        FORM --> C4
+        FORM --> C5
+        FORM --> C6
+    end
+
+    subgraph "Data Collection"
+        SHEET["Google Sheets/Notion<br/>📊 Results Dashboard"]
+        METRICS["Weekly Metrics<br/>📈 Average scores<br/>📊 Preference %<br/>💬 Common issues"]
+    end
+
+    subgraph "Iteration Loop"
+        REVIEW["Weekly Team Meeting<br/>👥 All 8 members<br/>📅 Every Monday"]
+        DECIDE{"Quality >= 4/5<br/>Preference > 70%?"}
+        IMPROVE["Improvements<br/>🔧 Adjust prompts<br/>🎨 Refine voices<br/>📚 Add training data<br/>🐛 Fix bugs"]
+        DEPLOY["Deploy to Production<br/>✅ Gradual rollout<br/>10% → 50% → 100%"]
+    end
+
+    %% Workflow
+    TL -->|Creates| TESTGEN
+    SW1 -->|Provides| TESTGEN
+    SW2 -->|Provides| TESTGEN
+    
+    TESTGEN --> GOOGLE
+    TESTGEN --> BOPHA
+    
+    QA1 -->|Tests| GOOGLE
+    QA1 -->|Tests| BOPHA
+    QA2 -->|Tests| GOOGLE
+    QA2 -->|Tests| BOPHA
+    VR1 -->|Reviews| GOOGLE
+    VR1 -->|Reviews| BOPHA
+    VR2 -->|Reviews| GOOGLE
+    VR2 -->|Reviews| BOPHA
+    
+    QA1 -->|Fills| FORM
+    QA2 -->|Fills| FORM
+    VR1 -->|Fills| FORM
+    VR2 -->|Fills| FORM
+    
+    FORM --> SHEET
+    SHEET --> METRICS
+    
+    METRICS --> REVIEW
+    TL --> REVIEW
+    SW1 --> REVIEW
+    SW2 --> REVIEW
+    VR1 --> REVIEW
+    VR2 --> REVIEW
+    QA1 --> REVIEW
+    QA2 --> REVIEW
+    TA --> REVIEW
+    
+    REVIEW --> DECIDE
+    DECIDE -->|No| IMPROVE
+    IMPROVE --> TL
+    TL -->|Implements| TESTGEN
+    
+    DECIDE -->|Yes| TA
+    TA -->|Approves| DEPLOY
+
+    %% Styling
+    style TL fill:#8B5CF6,color:#fff
+    style SW1 fill:#3B82F6,color:#fff
+    style SW2 fill:#3B82F6,color:#fff
+    style VR1 fill:#10B981,color:#fff
+    style VR2 fill:#10B981,color:#fff
+    style QA1 fill:#F59E0B,color:#fff
+    style QA2 fill:#F59E0B,color:#fff
+    style TA fill:#EC4899,color:#fff
+    style DEPLOY fill:#10B981,color:#fff
+    style IMPROVE fill:#F59E0B,color:#fff
+
+    %% Legend
+    subgraph "📊 Success Criteria"
+        SUCCESS["✅ Natural Sound: ≥4/5<br/>✅ Educational Value: ≥4/5<br/>✅ Cultural Context: ≥4/5<br/>✅ Technical Quality: ≥4/5<br/>✅ Bopha Preference: >70%<br/>📅 Evaluation: 2-3 iterations<br/>⏱️ Timeline: 2-4 weeks"]
+    end
+

@@ -1,0 +1,199 @@
+@startuml Bopha Content Generation Pipeline - Detailed Sequence
+
+title Bopha Content Generation: Google API (Current) vs Custom AI (Target)
+
+!define GOOGLE_COLOR #F59E0B
+!define CUSTOM_COLOR #8B5CF6
+!define API_COLOR #10B981
+!define DB_COLOR #6366F1
+
+box "Client" #3B82F6
+    actor User
+    participant "T2V Studio\n(React)" as UI
+end box
+
+box "API Layer" API_COLOR
+    participant "/api/generate" as API
+end box
+
+== GOOGLE API FLOW (Current PoC) ==
+
+box "Services (Google)" GOOGLE_COLOR
+    participant "GenPodcastService" as GPS_G
+    participant "prepareContentParts" as CPH_G
+    participant "conversationService" as CS_G
+end box
+
+box "Google Gemini" GOOGLE_COLOR
+    participant "Gemini File API" as GFILE
+    participant "Gemini 2.5 Flash Lite" as G25FL
+    participant "Gemini 2.5 Flash" as G25F
+    participant "Gemini Pro-TTS" as GTTS
+end box
+
+box "Storage (Google)" DB_COLOR
+    database "Supabase\nPostgreSQL" as PG_G
+    folder "/generated-audio/" as LOCAL
+end box
+
+User -> UI: Upload docs + Generate
+UI -> API: POST /api/generate\n{documents[], options}
+activate API
+
+API -> GPS_G: generatePodcast()
+activate GPS_G
+
+' Step 1: Prepare documents
+GPS_G -> CPH_G: prepareContentParts(docs)
+activate CPH_G
+
+loop For each document
+    alt File with geminiFileUri
+        CPH_G -> CPH_G: Convert URI to full URL\n"files/abc" → "https://..."
+        CPH_G -> GFILE: Check file state
+        GFILE --> CPH_G: ACTIVE (cached 48hrs)
+        note right: Auto-split if >45MB
+    else YouTube link
+        CPH_G -> CPH_G: Add as fileData\n{fileUri: youtube_url}
+    else Web link
+        CPH_G -> CPH_G: Add to prompt text\nfor urlContext tool
+    end
+end
+
+CPH_G --> GPS_G: contentParts[]
+deactivate CPH_G
+
+' Step 2: Generate Outline
+GPS_G -> G25FL: generateContent(contentParts)\ntools: [urlContext, googleSearch]
+activate G25FL
+note right: ⏱️ 5-10 seconds\n💰 $0.002
+G25FL --> GPS_G: Outline JSON
+deactivate G25FL
+
+' Step 3: Generate Script
+GPS_G -> G25F: generateContent(contentParts + outline)
+activate G25F
+note right: ⏱️ 15-30 seconds\n💰 $0.015
+G25F --> GPS_G: Script JSON\n(Speaker 1/2 dialogue)
+deactivate G25F
+
+' Step 4: Generate Audio
+GPS_G -> CS_G: conversationService(script, ["Zephyr", "Charon"])
+activate CS_G
+CS_G -> GTTS: generateContent(script)\nresponseModalities: [AUDIO]\nmultiSpeakerVoiceConfig
+activate GTTS
+note right: ⏱️ 20-40 seconds\n💰 $0.028\nFormat: WAV PCM16 base64
+GTTS --> CS_G: audio base64
+deactivate GTTS
+CS_G --> GPS_G: audioBuffer
+deactivate CS_G
+
+' Step 5: Save audio
+GPS_G -> LOCAL: Save WAV file\naudio-{timestamp}-{id}.wav
+LOCAL --> GPS_G: audioUrl
+
+GPS_G -> PG_G: Save metadata\n(Library table, JSON data)
+PG_G --> GPS_G: Success
+
+GPS_G --> API: {outline, script, audio}\n⏱️ Total: 45-80s\n💰 Total: $0.045
+deactivate GPS_G
+
+API --> UI: Generation complete
+UI --> User: Play audio + Show transcript
+
+note over User,LOCAL
+**Current PoC Metrics (Google APIs)**
+⏱️ Total Time: 45-80 seconds
+💰 Total Cost: $0.045 per generation
+🎭 Voices: 2 fixed (Zephyr, Charon)
+🇰🇭 Khmer Quality: 2.5/5 (robotic)
+🔒 Privacy: API-dependent
+✅ Status: Working PoC (Week 1)
+end note
+
+== CUSTOM AI FLOW (Target - Post Fine-Tuning) ==
+
+box "Custom Services" CUSTOM_COLOR
+    participant "GenPodcastService" as GPS_C
+    participant "RAG Service" as RAG
+    participant "Embedding Service" as EMB
+end box
+
+box "Custom AI Stack" CUSTOM_COLOR
+    participant "ChromaDB" as CHROMA
+    participant "Qwen 3 (fine-tuned)" as QWEN
+    participant "VibeVoice 7B" as VIBE
+end box
+
+box "Storage (Custom)" DB_COLOR
+    database "Supabase\nPostgreSQL" as PG_C
+    database "Supabase\nStorage" as STORAGE
+end box
+
+User -> UI: Upload docs + Generate
+UI -> API: POST /api/generate\n(same interface)
+activate API
+
+API -> GPS_C: generatePodcast()
+activate GPS_C
+
+' Step 1: RAG Retrieval
+GPS_C -> RAG: Prepare context from docs
+activate RAG
+
+RAG -> EMB: Generate embeddings\n(Khmer-capable model)
+activate EMB
+EMB -> CHROMA: Query similar chunks\ntop_k=5, threshold=0.75
+CHROMA --> EMB: Relevant summaries\n+ context chunks
+deactivate EMB
+
+RAG --> GPS_C: contextParts[]
+deactivate RAG
+
+' Step 2: Generate Outline
+GPS_C -> QWEN: generateContent(context)\nCustom Khmer tokenizer\nTemperature: 0.7
+activate QWEN
+note right: ⏱️ 8-12 seconds\n💰 $0.001\nGPU: RTX 6000 Pro (50%)
+QWEN --> GPS_C: Outline JSON
+deactivate QWEN
+
+' Step 3: Generate Script
+GPS_C -> QWEN: generateContent(context + outline)
+activate QWEN
+note right: ⏱️ 12-20 seconds\n💰 $0.002
+QWEN --> GPS_C: Script JSON\n(6-voice format)
+deactivate QWEN
+
+' Step 4: Generate Audio
+GPS_C -> VIBE: synthesize(script, voices=["Host", "Expert"])\nCustom Khmer tokenizer
+activate VIBE
+note right: ⏱️ 15-25 seconds\n💰 $0.005\nGPU: RTX 6000 Pro (30%)\nFormat: WAV 48kHz
+VIBE --> GPS_C: audioBuffer
+deactivate VIBE
+
+' Step 5: Save audio
+GPS_C -> STORAGE: Upload WAV\nsupabase.storage.upload()
+STORAGE --> GPS_C: audioUrl
+
+GPS_C -> PG_C: Save metadata
+PG_C --> GPS_C: Success
+
+GPS_C --> API: {outline, script, audio}\n⏱️ Total: 35-57s\n💰 Total: $0.008
+deactivate GPS_C
+
+API --> UI: Generation complete
+UI --> User: Play audio + Show transcript
+
+note over User,STORAGE
+**Target Custom AI Metrics**
+⏱️ Total Time: 35-57 seconds (-29%)
+💰 Total Cost: $0.008 per generation (-82%)
+🎭 Voices: 6 custom (Host, Expert, Teacher, Narrator, Student, Guest)
+🇰🇭 Khmer Quality: 4.2/5 (natural, cultural)
+🔒 Privacy: Self-hosted on RTX 6000 Pro
+🎯 RAG: Smart context retrieval with summarization
+📅 Status: Target (Weeks 7-12)
+end note
+
+@enduml
+
